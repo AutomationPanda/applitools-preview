@@ -7,7 +7,6 @@ const { env } = siteConfig;
 module.exports = withPlugins([
   images
 ], {
-  target: 'serverless',
   env: {
     NEXT_PUBLIC_GA_PROPERTY_ID: env.gaPropertyId
   }
