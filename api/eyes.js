@@ -19,8 +19,8 @@ export default async (req, res) => {
   //   browser = await puppeteer.chromium.launch()
   // }
 
-  const context = await browser.newContext();
-  const page = await context.newPage();
+  // const context = await browser.newContext();
+  const page = await browser.newPage();
 
   const eyes = new Eyes();
 
