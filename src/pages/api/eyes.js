@@ -1,6 +1,6 @@
 import chromium from 'chrome-aws-lambda';
 import playwright from 'playwright-core';
-const { Eyes, ClassicRunner, Target, RectangleSize, Configuration, BatchInfo} = require('@applitools/eyes-playwright');
+const { Eyes, Target } = require('@applitools/eyes-playwright');
 
 export default async (req, res) => {
   const body = JSON.parse(req.body) || {};
@@ -21,32 +21,15 @@ export default async (req, res) => {
 
   const context = await browser.newContext();
   const page = await context.newPage();
-  
-  // Initialize the Runner for your test.
 
-  const runner = new ClassicRunner();
-
-  // Initialize the eyes SDK (IMPORTANT: make sure your API key is set in the APPLITOOLS_API_KEY env variable).
-
-  const eyes = new Eyes(runner);
-
-  // Initialize the eyes configuration.
-
-  const conf = new Configuration()
-
-  // set new batch
-
-  conf.setBatch(new BatchInfo('Eyes Batch'));
-
-  // set the configuration to eyes
-
-  eyes.setConfiguration(conf)
+  const eyes = new Eyes();
 
   eyes.setApiKey(apiKey);
 
-  try {
+  let results;
 
-    await eyes.open(page, 'Applitools Preview', 'Playwright Headless', new RectangleSize(800, 600));
+  try {
+    await eyes.open(page, 'Applitools Preview', 'Playwright Headless');
 
     // Navigate the browser to the "ACME" demo app.
     
@@ -58,22 +41,25 @@ export default async (req, res) => {
 
     // End the test.
     
-    await eyes.closeAsync();
+    results = await eyes.close();
 
-    await browser.close()
-    
-    // If the test was aborted before eyes.close was called, ends the test as aborted.
-    
-    await eyes.abortIfNotClosed();
+    await browser.close();
   } catch(e) {
-    res.status(400).json({
+    return res.status(400).json({
       error: e.message
     })
   }
 
-  // Wait and collect all test results
-
-  const results = await runner.getAllTestResults(false);
-
-  res.status(200).json({ results })
+  res.status(200).json({
+    results: {
+      name: results.getName(),
+      status: results.getStatus(),
+      url: results.getUrl(),
+      steps: results.getSteps(),
+      matches: results.getMatches(),
+      mismatches: results.getMismatches(),
+      missing: results.getMissing(),
+      hostDisplaySize: results.getHostDisplaySize()
+    }
+  });
 }
