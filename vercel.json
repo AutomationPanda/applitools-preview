@@ -1,10 +1,7 @@
 {
   "functions": {
     "api/**/*.js": {
-      "excludeFiles": [
-        "public/**",
-        "src/**"
-      ]
+      "excludeFiles": "src/**"
     }
   }
 }
