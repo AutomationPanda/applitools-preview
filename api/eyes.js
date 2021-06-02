@@ -50,16 +50,5 @@ export default async (req, res) => {
     })
   }
 
-  res.status(200).json({
-    results: {
-      name: results.getName(),
-      status: results.getStatus(),
-      url: results.getUrl(),
-      steps: results.getSteps(),
-      matches: results.getMatches(),
-      mismatches: results.getMismatches(),
-      missing: results.getMissing(),
-      hostDisplaySize: results.getHostDisplaySize()
-    }
-  });
+  res.status(200).json({ results });
 }
