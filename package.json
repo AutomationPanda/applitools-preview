@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@applitools/eyes-playwright": "^1.8.2",
-    "chrome-aws-lambda": "^9.1.0",
     "form-data": "^4.0.0",
     "fs": "^0.0.1-security",
     "next": "10.2.3",

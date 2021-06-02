@@ -1,4 +1,3 @@
-import chromium from 'chrome-aws-lambda';
 import playwright from 'playwright-core';
 const { Eyes, Target } = require('@applitools/eyes-playwright');
 
@@ -6,18 +5,18 @@ export default async (req, res) => {
   const body = JSON.parse(req.body) || {};
   const { url, apiKey } = body;
 
-  const executablePath = await chromium.executablePath;
+  // const executablePath = await chromium.executablePath;
   let browser;
 
-  if ( executablePath ) {
-    browser = await playwright.chromium.launch({
-      args: chromium.args,
-      executablePath,
-      headless: chromium.headless,
-    });
-  } else {
+  // if ( executablePath ) {
+  //   browser = await playwright.chromium.launch({
+  //     args: chromium.args,
+  //     executablePath,
+  //     headless: chromium.headless,
+  //   });
+  // } else {
     browser = await playwright.chromium.launch()
-  }
+  // }
 
   const context = await browser.newContext();
   const page = await context.newPage();
