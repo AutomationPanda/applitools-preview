@@ -1,6 +1,6 @@
 import chromium from 'chrome-aws-lambda';
-import playwright from 'playwright-core';
-const { Eyes, Target } = require('@applitools/eyes-playwright');
+import puppeteer from 'puppeteer-core';
+const { Eyes, Target } = require('@applitools/eyes-puppeteer');
 
 export default async (req, res) => {
   const body = JSON.parse(req.body) || {};
@@ -10,13 +10,13 @@ export default async (req, res) => {
   let browser;
 
   if ( executablePath ) {
-    browser = await playwright.chromium.launch({
+    browser = await puppeteer.chromium.launch({
       args: chromium.args,
       executablePath,
       headless: chromium.headless,
     });
   } else {
-    browser = await playwright.chromium.launch()
+    browser = await puppeteer.chromium.launch()
   }
 
   const context = await browser.newContext();
@@ -29,7 +29,7 @@ export default async (req, res) => {
   let results;
 
   try {
-    await eyes.open(page, 'Applitools Preview', 'Playwright Headless');
+    await eyes.open(page, 'Applitools Preview', 'Puppeteer Headless');
 
     // Navigate the browser to the "ACME" demo app.
     
