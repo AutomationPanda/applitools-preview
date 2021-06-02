@@ -6,18 +6,18 @@ export default async (req, res) => {
   const body = JSON.parse(req.body) || {};
   const { url, apiKey } = body;
 
-  const executablePath = await chromium.executablePath;
+  // const executablePath = await chromium.executablePath;
   let browser;
 
-  if ( executablePath ) {
-    browser = await puppeteer.chromium.launch({
+  // if ( executablePath ) {
+    browser = await puppeteer.launch({
       args: chromium.args,
-      executablePath,
+      executablePath: await chromium.executablePath,
       headless: chromium.headless,
     });
-  } else {
-    browser = await puppeteer.chromium.launch()
-  }
+  // } else {
+  //   browser = await puppeteer.chromium.launch()
+  // }
 
   const context = await browser.newContext();
   const page = await context.newPage();
