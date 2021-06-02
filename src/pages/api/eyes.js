@@ -1,4 +1,4 @@
-import playwright from 'playwright-core';
+import playwright from 'playwright';
 const { Eyes, Target } = require('@applitools/eyes-playwright');
 
 export default async (req, res) => {
