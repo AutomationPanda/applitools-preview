@@ -1,22 +1,22 @@
-import playwright from 'playwright';
-const { Eyes, Target } = require('@applitools/eyes-playwright');
+const puppeteer = require('puppeteer-core');
+const chrome = require('chrome-aws-lambda');
+const { Eyes, Target } = require('@applitools/eyes-puppeteer');
 
 export default async (req, res) => {
   const body = JSON.parse(req.body) || {};
   const { url, apiKey } = body;
 
-  // const executablePath = await chromium.executablePath;
   let browser;
 
-  // if ( executablePath ) {
-  //   browser = await playwright.chromium.launch({
-  //     args: chromium.args,
-  //     executablePath,
-  //     headless: chromium.headless,
-  //   });
-  // } else {
-    browser = await playwright.chromium.launch()
-  // }
+  if ( process.env.NODE_ENV === 'production' ) {
+    browser = await puppeteer.launch({
+      args: chrome.args,
+      executablePath: await chrome.executablePath,
+      headless: chrome.headless,
+    });
+  } else {
+    browser = await puppeteer.launch()
+  }
 
   const context = await browser.newContext();
   const page = await context.newPage();
