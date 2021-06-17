@@ -4,22 +4,14 @@ const { Eyes, Target } = require('@applitools/eyes-puppeteer');
 
 export default async (req, res) => {
   const body = JSON.parse(req.body) || {};
-  const { url, apiKey } = body;
+  const { url, apiKey, type = 'capture' } = body;
 
-  // const executablePath = await chromium.executablePath;
-  let browser;
+  const browser = await puppeteer.launch({
+    args: chromium.args,
+    executablePath: await chromium.executablePath,
+    headless: true
+  });
 
-  // if ( executablePath ) {
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      executablePath: await chromium.executablePath,
-      headless: chromium.headless,
-    });
-  // } else {
-  //   browser = await puppeteer.chromium.launch()
-  // }
-
-  // const context = await browser.newContext();
   const page = await browser.newPage();
 
   const eyes = new Eyes();
@@ -32,16 +24,22 @@ export default async (req, res) => {
     await eyes.open(page, 'Applitools Preview', 'Puppeteer Headless');
 
     // Navigate the browser to the "ACME" demo app.
-    
+
     await page.goto(url);
 
+    if ( type === 'chaos' ) {
+      await page.evaluate(() => {
+        document.querySelectorAll('div').forEach(el => el.style.paddingLeft = '20px')
+      });
+    }
+
     // Visual checkpoint #1 - Check the login page.
-    
+
     await eyes.check("Login Window", Target.window().fully());
 
     // End the test.
-    
-    results = await eyes.close();
+
+    results = await eyes.close(false);
 
     await browser.close();
   } catch(e) {

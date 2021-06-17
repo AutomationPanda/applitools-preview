@@ -1,12 +1,9 @@
 @import "@styles/settings/__settings";
+@import "@styles/util/__util";
 
-.twitch {
-  display: flex;
-}
+.formContainer {
 
-.forms {
-
-  width: 40%;
+  text-align: center;
   padding-right: 4em;
 
   form {
@@ -33,11 +30,14 @@
     margin-bottom: 1em;
   }
 
+  form {
+    max-width: 40em;
+    margin: 0 auto;
+  }
+
 }
 
-.preview {
-
-  width: 60%;
+.previewContainer {
 
   figure {
 
@@ -50,6 +50,44 @@
       position: absolute;
       top: 0;
       left: 0;
+    }
+
+  }
+
+}
+
+.previewImages {
+
+  display: flex;
+
+  img {
+    display: block;
+    min-width: 0;
+  }
+
+}
+
+.previewImage {
+
+  width: 100%;
+  flex-grow: 1;
+  padding: 0 1em;
+
+  &[data-is-loaded="true"] {
+
+    p {
+      height: auto;
+    }
+
+  }
+
+  p {
+
+    height: 40vh;
+    background-color: $color-gray-100;
+
+    [data-is-loading="true"] & {
+      @extend %loading;
     }
 
   }

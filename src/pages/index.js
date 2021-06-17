@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
 
 import Layout from '@components/Layout';
@@ -9,9 +9,51 @@ import Form from '@components/Form';
 
 import styles from '@styles/pages/Home.module.scss'
 
+const apiKey = process.env.NEXT_PUBLIC_APPLITOOLS_API_KEY;
+
+const defaultSession = {
+  url: null
+}
+
+const defaultChecks = {
+  current: null,
+  chaos: null,
+  diff: null
+}
+
+const defaultLogData = [];
+
 export default function Home() {
+  const [session, setSession] = useState(defaultSession);
   const [isLoading, setIsLoading] = useState(false);
-  const [logData, setLogData] = useState();
+  const [logData, setLogData] = useState(defaultLogData);
+  const [checks, setChecks] = useState(defaultChecks)
+
+  useEffect(() => {
+    if ( !checks.current ) return;
+    (async function effect() {
+      setIsLoading(true);
+
+      const results = await checkEyes({
+        ...session,
+        type: 'chaos'
+      });
+
+      setChecks(prev => {
+        return {
+          ...prev,
+          chaos: `${results.stepsInfo[0].apiUrls.currentImage}?apiKey=${apiKey}`,
+          diff: `${results.stepsInfo[0].apiUrls.diffImage}?apiKey=${apiKey}`
+        }
+      });
+
+      setIsLoading(false);
+    })();
+  }, [checks.current])
+
+  /**
+   * handleOnSubmit
+   */
 
   async function handleOnSubmit(e) {
     e.preventDefault();
@@ -25,27 +67,44 @@ export default function Home() {
       formData[field.name] = field.value;
     });
 
-    console.log('formData', formData)
+    setSession({ ...formData });
 
+    const results = await checkEyes(formData);
+
+    setChecks({
+      ...defaultChecks,
+      current: `${results.stepsInfo[0].apiUrls.currentImage}?apiKey=${apiKey}`,
+    });
+
+    setIsLoading(false);
+  }
+
+  /**
+   * checkEyes
+   */
+
+  async function checkEyes(data) {
     const response = await fetch('/api/eyes', {
       method: 'POST',
-      body: JSON.stringify(formData)
+      body: JSON.stringify({
+        ...data,
+        apiKey
+      })
     });
 
     if ( response.status !== 200 ) {
-      console.log('no')
+      console.log('error');
+      console.log(response);
       setIsLoading(false)
       return;
     }
 
     const { results } = await response.json();
 
-    console.log('results', results)
+    setLogData([...logData, results]);
 
-    setLogData(results);
-    setIsLoading(false)
+    return results;
   }
-
 
   return (
     <Layout>
@@ -56,31 +115,51 @@ export default function Home() {
       </Head>
 
       <Section>
-        <Container>
+        <Container className={styles.formContainer}>
           <h1>Applitools Preview</h1>
+          <Form onSubmit={handleOnSubmit}>
+            <p>
+              <label htmlFor="url">Website URL</label>
+              <input id="url" type="text" name="url" />
+            </p>
+            <p>
+              <Button>Run Test</Button>
+            </p>
+          </Form>
+        </Container>
+      </Section>
 
-          <div className={styles.twitch}>
-            <div className={styles.forms}>
-              <Form onSubmit={handleOnSubmit}>
-                <h2>Visually Test</h2>
-                <p>
-                  <label htmlFor="url">Website URL</label>
-                  <input id="url" type="text" name="url" />
-                </p>
-                <p>
-                  <label htmlFor="apiKey">Applitools API Key</label>
-                  <input id="apiKey" type="text" name="apiKey" />
-                </p>
-                <p>
-                  <Button>Run Test</Button>
-                </p>
-              </Form>
+      <Section>
+        <Container className={styles.previewContainer} data-is-loading={isLoading}>
+          <div className={styles.previewImages}>
+            <div className={`${styles.previewImage} ${styles.previewImagesCurrent}`} data-is-loaded={!!checks.current}>
+              <h3>Original</h3>
+              <p>
+                {checks.current && (
+                  <img src={checks.current} />
+                )}
+              </p>
             </div>
-            <div className={styles.preview}>
-              {isLoading && <p>Loading...</p>}
-              {!isLoading && logData && JSON.stringify(logData, null, 2) }
+            <div className={`${styles.previewImage} ${styles.previewImagesChaos}`} data-is-loaded={!!checks.chaos}>
+              <h3>Chaos</h3>
+              <p>
+                {checks.chaos && (
+                  <img src={checks.chaos} />
+                )}
+              </p>
+            </div>
+            <div className={`${styles.previewImage} ${styles.previewImagesDiff}`} data-is-loaded={!!checks.diff}>
+              <h3>Diff</h3>
+              <p>
+                {checks.diff && (
+                  <img src={checks.diff} />
+                )}
+              </p>
             </div>
           </div>
+          {logData.length > 0 && logData.map((data, index) => {
+            return <code key={index}><pre>{ JSON.stringify(data, null, 2) }</pre></code>
+          })}
         </Container>
       </Section>
     </Layout>
