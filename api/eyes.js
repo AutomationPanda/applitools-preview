@@ -35,7 +35,7 @@ export default async (req, res) => {
 
     // Visual checkpoint #1 - Check the login page.
 
-    await eyes.check("Login Window", Target.window().fully());
+    await eyes.check("Login Window", Target.window());
 
     // End the test.
 
